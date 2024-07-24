@@ -6,6 +6,9 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 	private final static String CRLF = '\r\n';
 	private final static String QUOTE = '"';
 	private final static String DOUBLE_QUOTE = '""';
+	private final static String DOUBLE_QUOTE_REPLACEMENT = '¿¡DB~QT!?';
+	private final static String SPACE = ' ';
+
 	
 	private String csvString;
 	private Integer csvStringLength;
@@ -13,6 +16,7 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 	private Iterator<List<String>> it;
 	
 	public RT_CSVReader(String csvString) {
+		csvString = csvString.replace(DOUBLE_QUOTE, DOUBLE_QUOTE_REPLACEMENT); //APW: Swap double double quotes for an arbirary string to prevent issues
 		this.csvString = convertLineEndings(csvString.trim());
 		this.csvStringLength = csvString.length();
 		this.it = iterator();
@@ -94,7 +98,9 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
                     			// Replace double quoted quotes with double quotes.
                     			currentValue = currentValue.replace(DOUBLE_QUOTE, QUOTE);
                 		}
-				
+
+
+						
 				tmpValues.add(currentValue);
 				if (foundAt == nlAt) {
 					break;
@@ -102,6 +108,18 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 				startPos = position;
 			}
 		}
+
+		for (Integer i = 0; i < tmpValues.size(); i++) {
+			//APW: Undo the work we did at the top to stop issues with double quotes
+			if (tmpValues[i].indexOf(DOUBLE_QUOTE_REPLACEMENT) >= 0) {
+				tmpValues[i] = tmpValues[i].replace(DOUBLE_QUOTE_REPLACEMENT, DOUBLE_QUOTE);
+			}
+			//APW: Add quotes to fields that need it. source: https://en.wikipedia.org/wiki/Comma-separated_values#Basic_rules
+			if (tmpValues[i].indexOf(COMMA) >= 0 || tmpValues[i].indexOf(CR) >= 0 || tmpValues[i].indexOf(LF) >= 0 || (tmpValues[i].indexOf(DOUBLE_QUOTE) >= 0 && tmpValues[i] != DOUBLE_QUOTE) || tmpValues[i].startsWith(SPACE) || tmpValues[i].endsWith(SPACE)) {
+					tmpValues[i] = '"' + tmpValues[i] + '"';
+			}
+		}
+
 		values.addAll(tmpValues);
 		return position;
 	}
