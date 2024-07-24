@@ -7,7 +7,7 @@
 		                   ',value\"b3,value\'c3,\'value d3\'\n' +
 		                   '"value,a4","",,\'value d4\'';
 		                   
-		List<List<String>> data = CSVReader.read(csvString);
+		List<List<String>> data = RT_CSVReader.read(csvString);
 		
 		System.assertEquals('"valu,e a1"', data[1][0]);
 		System.assertEquals('"value\nb1"', data[1][1]);
@@ -38,7 +38,7 @@
 		                   '""\n' +
 		                   '"value,a4"';
 		                   
-		List<List<String>> data = CSVReader.read(csvString);
+		List<List<String>> data = RT_CSVReader.read(csvString);
 		
 		System.assertEquals('"valu,e a1"', data[1][0]);
 		System.assertEquals('value a2', data[2][0]);
