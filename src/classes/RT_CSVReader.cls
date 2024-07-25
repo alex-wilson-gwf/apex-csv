@@ -1,13 +1,16 @@
-public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<String>> {
+//https://github.com/redteal/apex-csv
+
+public class R_CSVReader implements Iterable<List<String>>, Iterator<List<String>> {
 
 	private final static String COMMA = ',';
 	private final static String CR = '\r';
 	private final static String LF = '\n';
 	private final static String CRLF = '\r\n';
-	private final static String QUOTE = '"';
-	private final static String DOUBLE_QUOTE = '""';
-	private final static String DOUBLE_QUOTE_REPLACEMENT = '¿¡DB~QT!?';
-	private final static String SPACE = ' ';
+	private final static String LFCR = '\n\r';
+	private final static String DQUOTE = '"';
+	private final static String DQUOTEDQUOTE = '""';
+	private final static String DQUOTEDQUOTE_REPLACEMENT = '¿¡DB~QT!?';
+	private final static String SP = ' ';
 
 	
 	private String csvString;
@@ -16,7 +19,7 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 	private Iterator<List<String>> it;
 	
 	public RT_CSVReader(String csvString) {
-		csvString = csvString.replace(DOUBLE_QUOTE, DOUBLE_QUOTE_REPLACEMENT); //APW: Swap double double quotes for an arbirary string to prevent issues
+		csvString = csvString.replace(DQUOTEDQUOTE, DQUOTEDQUOTE_REPLACEMENT); //APW: Swap double double quotes for an arbirary string to prevent issues
 		this.csvString = convertLineEndings(csvString.trim());
 		this.csvStringLength = csvString.length();
 		this.it = iterator();
@@ -24,7 +27,7 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 	
 	public static List<List<String>> read(String csvString) {
 		List<List<String>> res = new List<List<String>>();
-		RT_CSVReader reader = new RT_CSVReader(csvString);
+		CSVReader reader = new CSVReader(csvString);
 		while (reader.it.hasNext()) {
 			res.add(reader.it.next());
 		}
@@ -32,7 +35,7 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 	}
 	
 	private static String convertLineEndings(String str) {
-		return str.replace(CRLF, LF).replace(CR, LF);
+		return str.replace(CRLF, LF).replace(LFCR, LF).replace(CR, LF);
 	}
 	
 	public Iterator<List<String>> iterator() {
@@ -73,7 +76,7 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 				position = foundAt + 1;
 			}
 			
-			if (!currentValue.startsWith(QUOTE)) {
+			if (!currentValue.startsWith(DQUOTE)) {
 				tmpValues.add(currentValue);
 				
 				if (foundAt == nlAt) {
@@ -81,22 +84,22 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 				}
 				startPos = position;
 			}
-			else if (currentValue == DOUBLE_QUOTE) {
+			else if (currentValue == DQUOTEDQUOTE) {
 				tmpValues.add('');
 				if (foundAt == nlAt) {
 					break;
 				}
 				startPos = position;
 			}
-			else if (currentValue.endsWith(QUOTE)) {
+			else if (currentValue.endsWith(DQUOTE)) {
 				Integer lastIndex = currentValue.length() - 1;
 				currentValue = currentValue.substring(1, lastIndex);
 				
 				//Does it contain double quoted quotes? I.e. Escaped double quotes
-                		Integer doubleQuotedQuotesIndex = currentValue.indexOf(DOUBLE_QUOTE);
+                		Integer doubleQuotedQuotesIndex = currentValue.indexOf(DQUOTEDQUOTE);
                 		if(doubleQuotedQuotesIndex >= 0) {
                     			// Replace double quoted quotes with double quotes.
-                    			currentValue = currentValue.replace(DOUBLE_QUOTE, QUOTE);
+                    			currentValue = currentValue.replace(DQUOTEDQUOTE, DQUOTE);
                 		}
 
 
@@ -111,11 +114,11 @@ public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<Strin
 
 		for (Integer i = 0; i < tmpValues.size(); i++) {
 			//APW: Undo the work we did at the top to stop issues with double quotes
-			if (tmpValues[i].indexOf(DOUBLE_QUOTE_REPLACEMENT) >= 0) {
-				tmpValues[i] = tmpValues[i].replace(DOUBLE_QUOTE_REPLACEMENT, DOUBLE_QUOTE);
+			if (tmpValues[i].indexOf(DQUOTEDQUOTE_REPLACEMENT) >= 0) {
+				tmpValues[i] = tmpValues[i].replace(DQUOTEDQUOTE_REPLACEMENT, DQUOTEDQUOTE);
 			}
 			//APW: Add quotes to fields that need it. source: https://en.wikipedia.org/wiki/Comma-separated_values#Basic_rules
-			if (tmpValues[i].indexOf(COMMA) >= 0 || tmpValues[i].indexOf(CR) >= 0 || tmpValues[i].indexOf(LF) >= 0 || (tmpValues[i].indexOf(DOUBLE_QUOTE) >= 0 && tmpValues[i] != DOUBLE_QUOTE) || tmpValues[i].startsWith(SPACE) || tmpValues[i].endsWith(SPACE)) {
+			if (tmpValues[i].indexOf(COMMA) >= 0 || tmpValues[i].indexOf(CR) >= 0 || tmpValues[i].indexOf(LF) >= 0 || (tmpValues[i].indexOf(DQUOTEDQUOTE) >= 0 && tmpValues[i] != DQUOTEDQUOTE) || tmpValues[i].startsWith(SP) || tmpValues[i].endsWith(SP)) {
 					tmpValues[i] = '"' + tmpValues[i] + '"';
 			}
 		}
