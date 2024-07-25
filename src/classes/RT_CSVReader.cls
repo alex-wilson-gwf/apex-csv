@@ -1,4 +1,4 @@
-public class R_CSVReader implements Iterable<List<String>>, Iterator<List<String>> {
+public class RT_CSVReader implements Iterable<List<String>>, Iterator<List<String>> {
 
 	private final static String COMMA = ',';
 	private final static String CR = '\r';
