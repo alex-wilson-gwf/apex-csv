@@ -25,7 +25,7 @@ public class R_CSVReader implements Iterable<List<String>>, Iterator<List<String
 	
 	public static List<List<String>> read(String csvString) {
 		List<List<String>> res = new List<List<String>>();
-		CSVReader reader = new CSVReader(csvString);
+		RT_CSVReader reader = new RT_CSVReader(csvString);
 		while (reader.it.hasNext()) {
 			res.add(reader.it.next());
 		}
