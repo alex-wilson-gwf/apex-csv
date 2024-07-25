@@ -1,5 +1,3 @@
-//https://github.com/redteal/apex-csv
-
 public class R_CSVReader implements Iterable<List<String>>, Iterator<List<String>> {
 
 	private final static String COMMA = ',';
@@ -101,9 +99,7 @@ public class R_CSVReader implements Iterable<List<String>>, Iterator<List<String
                     			// Replace double quoted quotes with double quotes.
                     			currentValue = currentValue.replace(DQUOTEDQUOTE, DQUOTE);
                 		}
-
-
-						
+		
 				tmpValues.add(currentValue);
 				if (foundAt == nlAt) {
 					break;
